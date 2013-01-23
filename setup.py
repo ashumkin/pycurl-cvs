@@ -96,9 +96,13 @@ else:
                 include_dirs.append(e[2:])
         else:
             extra_compile_args.append(e)
-    libs = split_quoted(
-        os.popen("'%s' --libs" % CURL_CONFIG).read()+\
-        os.popen("'%s' --static-libs" % CURL_CONFIG).read())
+    libs = os.popen("'%s' --libs" % CURL_CONFIG).read()
+    is_libcurl_shared = os.popen("'%s' --built-shared" % CURL_CONFIG).read()
+    is_libcurl_shared = string.strip(is_libcurl_shared)
+    if is_libcurl_shared != 'yes':
+        libs = libs + \
+            os.popen("'%s' --static-libs" % CURL_CONFIG).read()
+    libs = split_quoted(libs)
     for e in libs:
         if e[:2] == "-l":
             libraries.append(e[2:])
