@@ -101,7 +101,16 @@ else:
     # support one or the other of these curl-config options, so gracefully
     # tolerate failure of either, but not both.
     optbuf = ""
-    for option in ["--libs", "--static-libs"]:
+    options = ["--libs", "--static-libs"]
+    is_libcurl_shared = ''
+    p = subprocess.Popen("'%s' --built-shared" % CURL_CONFIG, shell=True,
+		stdout=subprocess.PIPE)
+    (stdout, stderr) = p.communicate()
+    if p.wait() == 0:
+        is_libcurl_shared = string.strip(stdout)
+    if is_libcurl_shared == 'yes':
+        options.remove('--static-libs')
+    for option in options:
         p = subprocess.Popen("'%s' %s" % (CURL_CONFIG, option), shell=True,
             stdout=subprocess.PIPE)
         (stdout, stderr) = p.communicate()
